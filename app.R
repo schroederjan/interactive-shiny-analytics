@@ -4,6 +4,7 @@ library(shiny)
 library(dygraphs)
 library(glue)
 library(zoo)
+library(forecast)
 
 ###
 #MODULES
@@ -62,7 +63,7 @@ ui <- dashboardPage(
       tabItem(tabName = "visualize",
               
               fluidPage(
-                dygraphOutput("dygraph")
+                dygraphOutput("visualize")
               )
       ),
   
@@ -70,8 +71,15 @@ ui <- dashboardPage(
       # Third tab content
       #####
       tabItem(tabName = "test",
-              h2("Work in progress:"),
-              h3("Here you will be able to apply simple statistical tests to your data.")
+              
+              fluidRow(
+                box(
+                  plotOutput("test.acf")
+                ),
+                box(
+                  plotOutput("test.pacf")
+                )
+              )
       ),
       
       #####
@@ -108,7 +116,11 @@ ui <- dashboardPage(
 
 server <- function(input, output, session) {
   
+  ###
+  #Step 1
   #UPLOADED DATA
+  ###
+  
   datafile <- callModule(uploadModule, "datafile")
   
   #DATA TABLE
@@ -116,8 +128,12 @@ server <- function(input, output, session) {
     datafile()
   })
   
+  ###
+  #Step 2
   #DATA VISUALIZATION
-  output$dygraph <- renderDygraph({
+  ###
+  
+  output$visualize <- renderDygraph({
     
     #to transform the df from the module into a time series
     data.ts <- datafile() %>% 
@@ -135,7 +151,24 @@ server <- function(input, output, session) {
                 hideOnMouseOut = FALSE)
     
   })
+  
+  ###
+  #Step 3
+  #TEST
+  ###
 
+  output$test.acf <- renderPlot({
+    data <- datafile()
+    data.acf <- acf(data$value, plot = F)
+    autoplot(data.acf)
+  })
+  
+  output$test.pacf <- renderPlot({
+    data <- datafile()
+    data.pacf <- pacf(data$value, plot = F)
+    autoplot(data.pacf)
+  })
+  
   #not included here, for later use
   #callModule(downloadModule, "download", datafile, reactive(input$row.names))
 
