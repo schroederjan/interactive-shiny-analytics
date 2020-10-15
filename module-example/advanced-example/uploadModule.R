@@ -1,5 +1,7 @@
 # Upload Module
 
+library(readr)
+
 uploadModuleInput <- function(id) {
   ns <- NS(id)
 
@@ -20,7 +22,8 @@ uploadModule <- function(input, output, session, ...) {
 
   # The user's data, parsed into a data frame
   reactive({
-    read.csv(userFile()$datapath,
+    read_csv(userFile()$datapath,
+    #read.csv(userFile()$datapath,
       header = input$heading,
       stringsAsFactors = input$strings,
       na.string = input$na.string,
