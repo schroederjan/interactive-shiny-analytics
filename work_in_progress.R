@@ -3,27 +3,23 @@ library(dplyr)
 library(zoo)
 library(forecast)
 library(timetk)
+library(tibble)
+library(purrr)
+library(rlang)
+library(tibbletime)
+library(lubridate)
+library(xts)
 
 #Base import
 data <- read.csv("/data/R/Projects/interactive-shiny-analytics/data/raw/MONTH CN House Prices Monthly.csv",
                  stringsAsFactors=FALSE)
-head(data)
-str(data)
-
-#
-#VISUAL
-#
 
 #Zoo import
-data.ts <- read.csv.zoo("/data/R/Projects/interactive-shiny-analytics/data/raw/MONTH CN House Prices Monthly.csv",
-                 stringsAsFactors=FALSE)
-head(data.ts)
-str(data.ts)
+#data.ts <- read.csv.zoo("/data/R/Projects/interactive-shiny-analytics/data/raw/MONTH CN House Prices Monthly.csv",
+#                 stringsAsFactors=FALSE)
 
 ts <- data %>% 
   read.zoo()
-
-dygraph(ts)
 
 #
 #TEST
@@ -41,11 +37,6 @@ ndiffs(ts)  # number of differences need to make it stationary
 #Prediction
 #
 
-#data$value %>% 
-#  nnetar() %>% 
-#  forecast() %>% 
-#  data.frame()
-
 h = 10
 
 #NNETAR FUNCTION
@@ -61,53 +52,68 @@ model.nnetar.fc <- function(data, h){
 
 #nice function to get everything out of the workflow
 model.nnetar.fc(data$value, h = h)
-
-#result as df
-result.df
-#result as plot
-autoplot(result.fc)
-#result as model
-result.model
+#result as df uncomment:
+#result.df
+#result as plot uncomment:
+#autoplot(result.fc)
+#result as model uncomment:
+#result.model
   
-# Make future index using tk_make_future_timeseries()
+# create future dates for the time horizon predicted
 idx <- ts %>%
   tk_index() %>%
   tk_make_future_timeseries(length_out = h)
-
-idx
+#idx
 
 # Retransform values
-pred_tbl <- tibble(
+result.tbl <- tibble(
   index   = idx,
-  value   = result.fc$mean)
+  value   = result.df$Point.Forecast)
 
-pred_tbl
+#result.tbl
+#str(result.tbl)
 
-###
-### UNDERCONSTRUCTION
-###
-  
 # Combine actual data with predictions
-tbl_1 <- df %>%
+df.act <- data %>%
+  read.zoo() %>% 
+  tk_tbl() %>% 
+  mutate(index = as_date(index)) %>%
+  as_tbl_time(index = index) %>% 
+  data.frame() %>% 
   add_column(key = "actual")
-  
-tbl_3 <- pred_tbl %>%
-  add_column(key = "predict")
-names(tbl_3) <- c("index", "value", "key")
-  
-  # Create time_bind_rows() to solve dplyr issue
-  time_bind_rows <- function(data_1, data_2, index) {
-    index_expr <- enquo(index)
-    bind_rows(data_1, data_2) %>%
-      as_tbl_time(index = !! index_expr)
-  }
-  
-  ret <- list(tbl_1, tbl_3) %>%
-    reduce(time_bind_rows, index = index) %>%
-    arrange(key, index) %>%
-    mutate(key = as_factor(key))
-  
-  return(ret)
-}
 
+df.fc <- result.tbl %>%
+  tk_tbl() %>% 
+  mutate(index = as_date(index)) %>%
+  as_tbl_time(index = index) %>% 
+  data.frame() %>% 
+  add_column(key = "predict")
+ 
+df.result <- rbind(df.act, df.fc)
+
+ts.act <- df.result %>%
+  filter(key == "actual") %>% 
+  select(index, value) %>% 
+  read.zoo() 
+
+ts.fc <- df.result %>%
+  filter(key == "predict") %>% 
+  select(index, value) %>% 
+  read.zoo() 
+
+ts.act_fc <- merge(ts.act, ts.fc)
+names(ts.act_fc) <- c("Actual", "Prediction")
+
+ts.fit <- data.frame(data.act, result.fc$fitted) %>% 
+  select("index","result.fc.fitted") %>%
+  na.omit() %>% 
+  read.zoo()
+names(ts.fit) <- c("index", "Fit")
+
+ts.all <- merge(ts.act_fc, ts.fit)
+names(ts.all) <- c("Actual", "Prediction", "Fit")
+dygraph(ts.all)
+
+### Accuracy
+accuracy(result.fc)
 
