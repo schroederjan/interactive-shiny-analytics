@@ -204,10 +204,11 @@ server <- function(input, output, session) {
   ###
   
   #DYGRAPH PREDICTION
-  output$predict <- renderDygraph({
+  output$predict <- renderDataTable({
+  #output$predict <- renderDygraph({
     
-    timeseries <- callModule(predictModule, "predict", datafile)
-    custom_dygraph(timeseries)
+    timeseries <- callModule(predictModule, "predict", datafile())
+    ts <- timeseries()
     
   })
   

@@ -14,7 +14,7 @@ predictModuleInput <- function(id) {
 predictModule <- function(input, output, session, data, ...) {
   
   # The user's data, parsed into a data frame
-  reactive({
+  output$timeseries <- reactive({
     
     #FUNCTIONS
     model.nnetar.fc <- function(data, h){
