@@ -1,6 +1,5 @@
 library(shiny)
-source("modules/sample_ui.R")
-source("modules/sample_server.R")
+source("modules/sample_module.R")
 
 ui <- fluidPage(
   sidebarLayout(
