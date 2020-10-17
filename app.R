@@ -12,6 +12,24 @@ library(forecast)
 
 source("modules/uploadModule.R")
 source("modules/downloadModule.R")
+source("modules/predictModule.R")
+
+###
+#FUNCTIONS
+###
+
+custom_dygraph <- function(data) {
+  
+  dygraph(data) %>% 
+    dyRangeSelector() %>% 
+    dyOptions(colors = RColorBrewer::brewer.pal(10, "BrBG")[c(9,4)]) %>% 
+    dyUnzoom() %>% 
+    dyCrosshair(direction = "vertical") %>% 
+    dyLegend(width = 400) %>% 
+    dyHighlight(highlightCircleSize = 5, 
+                highlightSeriesBackgroundAlpha = 0.2,
+                hideOnMouseOut = FALSE)
+}
 
 ###
 #UI
@@ -42,16 +60,18 @@ ui <- dashboardPage(
       tabItem(tabName = "upload",
               
               fluidRow(
+                
                 sidebarLayout(
+                  
                   sidebarPanel(
-                    uploadModuleInput("datafile"),
-                    tags$hr(),
-                    checkboxInput("row.names", "Append row names"),
-                    #downloadModuleInput("download")
-                  ),
+                    uploadModuleInput("datafile")
+                    
+                    ),
+                  
                   mainPanel(
                     dataTableOutput("table")
                     )
+                  
                   )
                 )
             
@@ -86,24 +106,44 @@ ui <- dashboardPage(
       # Fourth tab content
       #####
       tabItem(tabName = "advanced-test",
+              
               h2("Work in progress:"),
               h3("Here you will be able to apply advanced statistical tests to your data.")
+              
       ),
       
       #####
       # Fifth tab content
       #####
       tabItem(tabName = "predict",
-              h2("Work in progress:"),
-              h3("Here you will be able to predict your data.")
+              
+              fluidRow(
+                sidebarLayout(
+                  
+                  sidebarPanel(
+                    
+                    predictModuleInput("nnetar_config")
+                    
+                  ),
+                  
+                  mainPanel(
+                    
+                    dygraphOutput("predict")
+                    
+                  )
+                )
+              )
+              
       ),
       
       #####
       # Sixth tab content
       #####
       tabItem(tabName = "download",
+              
               h2("Work in progress:"),
               h3("Here you will be able to download a full report of your analysis.")
+              
       )
       
     )
@@ -136,19 +176,8 @@ server <- function(input, output, session) {
   output$visualize <- renderDygraph({
     
     #to transform the df from the module into a time series
-    data.ts <- datafile() %>% 
-      read.zoo()
-  
-    #TODO add the files name as a header
-    dygraph(data.ts, main = glue("Uploaded Data:")) %>% 
-    dyRangeSelector() %>% 
-    #dyOptions(colors = RColorBrewer::brewer.pal(10, "BrBG")[c(9,4)]) %>% 
-    dyUnzoom() %>% 
-    dyCrosshair(direction = "vertical") %>% 
-    dyLegend(width = 400) %>% 
-    dyHighlight(highlightCircleSize = 5, 
-                highlightSeriesBackgroundAlpha = 0.2,
-                hideOnMouseOut = FALSE)
+    data.ts <- datafile() %>% read.zoo()
+    custom_dygraph(data.ts)
     
   })
   
@@ -167,6 +196,19 @@ server <- function(input, output, session) {
     data <- datafile()
     data.pacf <- pacf(data$value, plot = F)
     autoplot(data.pacf)
+  })
+  
+  ###
+  #Step 6
+  #PREDICTION
+  ###
+  
+  #DYGRAPH PREDICTION
+  output$predict <- renderDygraph({
+    
+    timeseries <- callModule(predictModule, "predict", datafile)
+    custom_dygraph(timeseries)
+    
   })
   
   #not included here, for later use
