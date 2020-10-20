@@ -1,18 +1,14 @@
 ## app.R ##
-library(shinydashboard)
-library(shiny)
-library(dygraphs)
-library(glue)
-library(zoo)
-library(forecast)
 
 ###
 #MODULES
 ###
 
+source("modules/packages.R")
 source("modules/uploadModule.R")
 source("modules/downloadModule.R")
 source("modules/predictModule.R")
+source("modules/test_module.R")
 
 ###
 #FUNCTIONS
@@ -59,21 +55,16 @@ ui <- dashboardPage(
       #####
       tabItem(tabName = "upload",
               
-              fluidRow(
-                
+              fluidPage(
                 sidebarLayout(
-                  
                   sidebarPanel(
-                    uploadModuleInput("datafile")
-                    
-                    ),
-                  
+                    uploadUI("data", "User data (.csv format)")
+                  ),
                   mainPanel(
                     dataTableOutput("table")
-                    )
-                  
                   )
                 )
+              )
             
               ),
       
@@ -119,21 +110,16 @@ ui <- dashboardPage(
               
               fluidRow(
                 sidebarLayout(
-                  
                   sidebarPanel(
-                    
                     predictModuleInput("nnetar_config")
-                    
                   ),
                   
                   mainPanel(
-                    
                     dygraphOutput("predict")
-                    
                   )
                 )
               )
-              
+             
       ),
       
       #####
@@ -161,11 +147,11 @@ server <- function(input, output, session) {
   #UPLOADED DATA
   ###
   
-  datafile <- callModule(uploadModule, "datafile")
+  data <- uploadServer("data", stringsAsFactors = FALSE)
   
   #DATA TABLE
   output$table <- renderDataTable({
-    datafile()
+    data()
   })
   
   ###
@@ -176,7 +162,7 @@ server <- function(input, output, session) {
   output$visualize <- renderDygraph({
     
     #to transform the df from the module into a time series
-    data.ts <- datafile() %>% read.zoo()
+    data.ts <- data() %>% read.zoo()
     custom_dygraph(data.ts)
     
   })
@@ -187,14 +173,12 @@ server <- function(input, output, session) {
   ###
 
   output$test.acf <- renderPlot({
-    data <- datafile()
-    data.acf <- acf(data$value, plot = F)
+    data.acf <- acf(data()$value, plot = F)
     autoplot(data.acf)
   })
   
   output$test.pacf <- renderPlot({
-    data <- datafile()
-    data.pacf <- pacf(data$value, plot = F)
+    data.pacf <- pacf(data()$value, plot = F)
     autoplot(data.pacf)
   })
   
@@ -204,16 +188,17 @@ server <- function(input, output, session) {
   ###
   
   #DYGRAPH PREDICTION
-  output$predict <- renderDataTable({
-  #output$predict <- renderDygraph({
+  output$predict <- renderDygraph({
     
-    timeseries <- callModule(predictModule, "predict", datafile())
-    ts <- timeseries()
+    TS <- testServer("predict", data())
+    print(TS())
+    #dygraph(TS())
+    
+    #ts <- predictServer("predict", data())
+    #print(ts())
+    #dygraph(ts)
     
   })
-  
-  #not included here, for later use
-  #callModule(downloadModule, "download", datafile, reactive(input$row.names))
 
 }
 

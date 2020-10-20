@@ -39,7 +39,7 @@ ts <- data %>%
 #Prediction
 #
 
-h = 10
+h = 6
 
 #NNETAR FUNCTION
 model.nnetar.fc <- function(data, h){
@@ -117,6 +117,8 @@ names(ts.fit) <- c("index", "Fit")
 #RESULT EXTENDED AS TS
 ts.extended <- merge(ts.result, ts.fit)
 names(ts.extended) <- c("Actual", "Prediction", "Fit")
+
+#print(ts.extended)
 
 #VISUAL
 dygraph(ts.extended)

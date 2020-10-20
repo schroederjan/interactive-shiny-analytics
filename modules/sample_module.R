@@ -4,14 +4,14 @@
 #
 
 # Module UI function
-csvFileUI <- function(id, label = "CSV file") {
+uploadUI <- function(id, label = "CSV file") {
   # `NS(id)` returns a namespace function, which was save as `ns` and will
   # invoke later.
   ns <- NS(id)
   
   tagList(
     fileInput(ns("file"), label),
-    checkboxInput(ns("heading"), "Has heading"),
+    checkboxInput(ns("heading"), "Has heading", value = T),
     selectInput(ns("quote"), "Quote", c(
       "None" = "",
       "Double quote" = "\"",
@@ -25,7 +25,7 @@ csvFileUI <- function(id, label = "CSV file") {
 #
 
 # Module server function
-csvFileServer <- function(id, stringsAsFactors) {
+uploadServer <- function(id, stringsAsFactors) {
   moduleServer(
     id,
     ## Below is the module function
@@ -42,7 +42,9 @@ csvFileServer <- function(id, stringsAsFactors) {
         read.csv(userFile()$datapath,
                  header = input$heading,
                  quote = input$quote,
-                 stringsAsFactors = stringsAsFactors)
+                 stringsAsFactors = stringsAsFactors
+                 )
+        
       })
       
       # We can run observers in here if we want to
@@ -56,3 +58,26 @@ csvFileServer <- function(id, stringsAsFactors) {
     }
   )    
 }
+
+### FOR TESTING
+
+ui <- fluidPage(
+  sidebarLayout(
+    sidebarPanel(
+      uploadUI("datafile", "User data (.csv format)")
+    ),
+    mainPanel(
+      dataTableOutput("table")
+    )
+  )
+)
+
+server <- function(input, output, session) {
+  datafile <- uploadServer("datafile", stringsAsFactors = FALSE)
+  
+  output$table <- renderDataTable({
+    datafile()
+  })
+}
+
+shinyApp(ui, server)

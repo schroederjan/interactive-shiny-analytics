@@ -1,43 +1,70 @@
-# Upload Module
-library(shiny)
+#Upload Module
 
-uploadInput <- function(id, label = "upload") {
+#
+#USER INTERFACE
+#
+
+# Module UI function
+uploadUI <- function(id, label = "CSV file") {
+
   ns <- NS(id)
+  
   tagList(
-    fileInput(ns("file"), "Select a csv file"),
-    checkboxInput(ns("heading"), "Has header row", value = T),
-    checkboxInput(ns("strings"), "Coerce strings to factors", value = F)
+    fileInput(ns("file"), label),
+    checkboxInput(ns("heading"), "Has heading", value = T),
+    selectInput(ns("quote"), "Quote", c(
+      "None" = "",
+      "Double quote" = "\"",
+      "Single quote" = "'"
+    ))
   )
 }
 
-uploadServer <- function(id){
+#
+#SERVER
+#
+
+# Module server function
+uploadServer <- function(id, stringsAsFactors) {
   moduleServer(
     id,
-    function(input, output, session, ...) {
+    ## Below is the module function
+    function(input, output, session) {
+      # The selected file, if any
       userFile <- reactive({
         # If no file is selected, don't do anything
-        req(input$file)
+        validate(need(input$file, message = FALSE))
+        input$file
       })
+      
       # The user's data, parsed into a data frame
-      output$data <- reactive({
-        raw <- read.csv(userFile()$datapath,
-                        header = input$heading,
-                        stringsAsFactors = input$strings,
-                        ...)
-        data <- raw %>% na.omit(value)
-        })
+      dataframe <- reactive({
+        read.csv(userFile()$datapath,
+                 header = input$heading,
+                 quote = input$quote,
+                 stringsAsFactors = stringsAsFactors
+        )
+        
+      })
+      
+      # We can run observers in here if we want to
+      observe({
+        msg <- sprintf("File %s was uploaded", userFile()$name)
+        cat(msg, "\n")
+      })
+      
+      # Return the reactive that yields the data frame
+      return(dataframe)
     }
-  )
+  )    
 }
-  
-#
-# TESTING
-#
 
-ui <- fluidRow(
+### FOR TESTING
+
+ui <- fluidPage(
   sidebarLayout(
     sidebarPanel(
-      uploadInput("upload", "Upload")
+      uploadUI("datafile", "User data (.csv format)")
     ),
     mainPanel(
       dataTableOutput("table")
@@ -46,13 +73,12 @@ ui <- fluidRow(
 )
 
 server <- function(input, output, session) {
-  datafile <- uploadServer("upload")
   
-  #DATA TABLE
+  datafile <- uploadServer("datafile", stringsAsFactors = FALSE)
+  
   output$table <- renderDataTable({
     datafile()
   })
-  
 }
 
 shinyApp(ui, server)
