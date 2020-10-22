@@ -121,7 +121,7 @@ predictServer <- function(id, data) {
         #res.acf <- result.model$residuals %>% na.omit() %>% Acf(main = "ACF of Residuals")
         #res.hist <- result.model$residuals %>% hist(main = "Histogram of Residuals")
         
-        module.list <- list(ts.extended, ts.accuracy, ts.plot)
+        module.list <- list(ts.extended, ts.accuracy, ts.plot, result.model)
         
         return(module.list)
         
@@ -197,11 +197,12 @@ server <- function(input, output, session) {
     ts.plot <- ts.list()[3][[1]]
   })
   
-  # output$plot.res <- renderPlot({
-  #   ts.list <- predictServer("predictModule", data)
-  #   ts.model <- ts.list()[4][[1]]
-  #   ts.model$residuals %>% plot()
-  # })
+  output$plot.res <- renderPlot({
+    ts.list <- predictServer("predictModule", data)
+    ts.model <- ts.list()[4][[1]]
+    ts.model %>% checkresiduals()
+  
+  })
   
 }
 

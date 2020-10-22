@@ -101,8 +101,7 @@ ui <- dashboardPage(
               h2("Work in progress:"),
               h3("Here you will be able to download a full report of your analysis.")
               
-              )
-      ),
+              ),
       
       #####
       # Fifth tab content
@@ -157,7 +156,7 @@ ui <- dashboardPage(
               )
     ),
   )
-
+)
 
 ###
 #SERVER
