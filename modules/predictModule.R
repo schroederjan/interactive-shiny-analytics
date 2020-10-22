@@ -46,7 +46,7 @@ predictServer <- function(id, data) {
         }
         
         #nice function to get everything out of the workflow
-        model.nnetar.fc(data$value, h = H, PI = PI, npaths = NPATHS)
+        model.nnetar.fc(data$value, H, PI, NPATHS)
         #result as df uncomment:
         #result.df
         #result as plot uncomment:
@@ -94,7 +94,7 @@ predictServer <- function(id, data) {
         #str(ts.fc)
         #RESULT AS TS
         ts.result <- merge(ts.act, ts.fc)
-        names(ts.act_fc) <- c("Actual", "Prediction")
+        names(ts.result) <- c("Actual", "Prediction")
         
         #add fit from the model to the results
         ts.fit <- data.frame(df.act, result.fc$fitted) %>% 
@@ -113,12 +113,18 @@ predictServer <- function(id, data) {
         # Simple Plot
         ts.plot <- plot(result.fc)
         
-        ts.list <- list(ts.extended, ts.accuracy, ts.plot)
+        # Residuals of the Model
+        #res.plot <- result.model$residuals %>% plot(main = "Plot of Residuals")
+        #res.acf <- result.model$residuals %>% na.omit() %>% Acf(main = "ACF of Residuals")
+        #res.hist <- result.model$residuals %>% hist(main = "Histogram of Residuals")
+        
+        ts.list <- list(ts.extended, ts.accuracy, ts.plot, result.model)
         
         return(ts.list)
         
       }
-      ts.list <- prediction_function(data, H, PI, NPATHS)
+      
+      ts.list <- prediction_function(data, H = H, PI = PI, NPATHS = NPATHS)
       
     })
     

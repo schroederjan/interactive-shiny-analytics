@@ -132,10 +132,14 @@ ui <- dashboardPage(
                          h4("Training Accuracy"),
                          tableOutput("training_accuracy")
                          )
+                  ),
+                fluidRow(
+                  column(12,
+                         h4("Model Residuals"),
+                         plotOutput("residuals")
+                         )
                   )
-                  
-                  
-                  )
+              )
               ),
       
       #####
@@ -217,6 +221,12 @@ server <- function(input, output, session) {
   output$predict_plot <- renderPlot({
     ts.list <- predictServer("predictModule", data())
     ts.plot <- ts.list()[3][[1]]
+  })
+  
+  output$residuals <- renderPlot({
+    ts.list <- predictServer("predictModule", data())
+    ts.model <- ts.list[4][[1]]
+    checkresiduals(ts.model)
   })
     
 }

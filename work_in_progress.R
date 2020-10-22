@@ -46,7 +46,7 @@ ts <- data %>%
 #Prediction
 #
 
-H = 48
+H = 6
 PI = T
 NPATHS = 100
 
@@ -66,7 +66,7 @@ prediction_function <- function(df, H, PI, NPATHS) {
   }
   
   #nice function to get everything out of the workflow
-  model.nnetar.fc(data$value, h = H, PI = PI, npaths = NPATHS)
+  model.nnetar.fc(data$value, H, PI, NPATHS)
   #result as df uncomment:
   #result.df
   #result as plot uncomment:
@@ -114,7 +114,7 @@ prediction_function <- function(df, H, PI, NPATHS) {
   #str(ts.fc)
   #RESULT AS TS
   ts.result <- merge(ts.act, ts.fc)
-  names(ts.act_fc) <- c("Actual", "Prediction")
+  names(ts.result) <- c("Actual", "Prediction")
   
   #add fit from the model to the results
   ts.fit <- data.frame(df.act, result.fc$fitted) %>% 
@@ -133,13 +133,12 @@ prediction_function <- function(df, H, PI, NPATHS) {
   # Simple Plot
   ts.plot <- plot(result.fc)
   
-  #gg_tsresiduals(result.model)
-  res.plot <- result.model$residuals %>% plot(main = "Plot of Residuals")
-  res.acf <- result.model$residuals %>% na.omit() %>% Acf(main = "ACF of Residuals")
-  res.hist <- result.model$residuals %>% hist(main = "Histogram of Residuals")
-  ts.residuals <- list(res.plot, res.acf, res.hist)
+  # Residuals of the Model
+  #res.plot <- result.model$residuals %>% plot(main = "Plot of Residuals")
+  #res.acf <- result.model$residuals %>% na.omit() %>% Acf(main = "ACF of Residuals")
+  #res.hist <- result.model$residuals %>% hist(main = "Histogram of Residuals")
   
-  ts.list <- list(ts.extended, ts.accuracy, ts.plot, ts.residuals)
+  ts.list <- list(ts.extended, ts.accuracy, ts.plot, result.model)
   
   return(ts.list)
   
@@ -148,17 +147,15 @@ ts.list <- prediction_function(data, H = H, PI = PI, NPATHS = NPATHS)
 
 #TESTING FUNCTION OUTPUT
 ts.acc <- ts.list[2] %>% data.frame()
-ts <- ts.list[1] %>% data.frame()
+ts.extended <- ts.list[1] %>% data.frame()
 ts.plot <- ts.list[3][[1]]
-
-res.plot <- ts.list[4][1]
+ts.model <- ts.list[4][[1]]
 
 #VISUAL
-dygraph(ts)
+dygraph(ts.extended)
 ts.acc
-ts.plot[[1]]
-
-
+ts.plot
+checkresiduals(ts.model)
 
 # ### Accuracy
 # accuracy(result.fc)
