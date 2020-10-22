@@ -62,10 +62,9 @@ ui <- dashboardPage(
                   ),
                   mainPanel(
                     dataTableOutput("table")
+                    )
                   )
                 )
-              )
-            
               ),
       
       #####
@@ -75,8 +74,9 @@ ui <- dashboardPage(
               
               fluidPage(
                 dygraphOutput("visualize")
-              )
-      ),
+                )
+              
+              ),
   
       #####
       # Third tab content
@@ -90,8 +90,8 @@ ui <- dashboardPage(
                 box(
                   plotOutput("test.pacf")
                 )
-              )
-      ),
+                )
+              ),
       
       #####
       # Fourth tab content
@@ -101,26 +101,31 @@ ui <- dashboardPage(
               h2("Work in progress:"),
               h3("Here you will be able to apply advanced statistical tests to your data.")
               
-      ),
+              ),
       
       #####
       # Fifth tab content
       #####
       tabItem(tabName = "predict",
               
-              fluidRow(
-                sidebarLayout(
-                  sidebarPanel(
-                    predictModuleInput("nnetar_config")
-                  ),
-                  
-                  mainPanel(
-                    dygraphOutput("predict")
+              fluidPage(
+                
+                title = "NNETAR Prediction",
+                h2("NNETAR Prediction"),
+                dygraphOutput("predict"),
+                
+                hr(),
+                
+                fluidRow(
+                  column(3,
+                         h4("Model Configurations"),
+                         predictUI("predictModule")
+                         )
                   )
-                )
-              )
-             
-      ),
+                  
+                  
+                  )
+              ),
       
       #####
       # Sixth tab content
@@ -130,7 +135,7 @@ ui <- dashboardPage(
               h2("Work in progress:"),
               h3("Here you will be able to download a full report of your analysis.")
               
-      )
+              )
       
     )
   ),
@@ -190,13 +195,8 @@ server <- function(input, output, session) {
   #DYGRAPH PREDICTION
   output$predict <- renderDygraph({
     
-    TS <- testServer("predict", data())
-    print(TS())
-    #dygraph(TS())
-    
-    #ts <- predictServer("predict", data())
-    #print(ts())
-    #dygraph(ts)
+    ts <- predictServer("predictModule", data())
+    custom_dygraph(ts())
     
   })
 
