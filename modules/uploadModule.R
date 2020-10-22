@@ -61,24 +61,24 @@ uploadServer <- function(id, stringsAsFactors) {
 
 ### FOR TESTING
 
-ui <- fluidPage(
-  sidebarLayout(
-    sidebarPanel(
-      uploadUI("datafile", "User data (.csv format)")
-    ),
-    mainPanel(
-      dataTableOutput("table")
-    )
-  )
-)
-
-server <- function(input, output, session) {
-  
-  datafile <- uploadServer("datafile", stringsAsFactors = FALSE)
-  
-  output$table <- renderDataTable({
-    datafile()
-  })
-}
-
-shinyApp(ui, server)
+# ui <- fluidPage(
+#   sidebarLayout(
+#     sidebarPanel(
+#       uploadUI("datafile", "User data (.csv format)")
+#     ),
+#     mainPanel(
+#       dataTableOutput("table")
+#     )
+#   )
+# )
+# 
+# server <- function(input, output, session) {
+#   
+#   datafile <- uploadServer("datafile", stringsAsFactors = FALSE)
+#   
+#   output$table <- renderDataTable({
+#     datafile()
+#   })
+# }
+# 
+# shinyApp(ui, server)

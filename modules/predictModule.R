@@ -5,15 +5,14 @@
 #
 
 predictUI <- function(id) {
-  
+
   ns <- NS(id)
-  
+
   tagList(
     sliderInput(ns("H"), label = "Time Horizon:", min = 1, max = 48, value = 6),
     checkboxInput(ns("PI"), label = "Prediction Intervals (PI)?", value = F),
     sliderInput(ns("NPATHS"), label = "How many Calculations (NPATHS for PI)?", min = 1, max = 1000, value = 100)
-  )
-  
+    )
 }
 
 #
@@ -23,30 +22,34 @@ predictUI <- function(id) {
 predictServer <- function(id, data) {
   moduleServer(id, function(input, output, session) {
     
-    H <- input$H
-    PI <- input$PI
-    NPATHS <- input$NPATHS
-    
     #call a prediction function to get the data and the training accuracy returned as a list
     ts.list <- reactive({
       
-      prediction_function <- function(df, H, PI, NPATHS) {
+      H <- input$H
+      PI <- input$PI
+      NPATHS <- input$NPATHS
+      
+      #H <- 6
+      #PI <- F
+      #NPATHS <- 100
+      
+      prediction_function <- function(data, h, pi, npaths) {
         
         ts <- data %>% read.zoo()
         
         #NNETAR FUNCTION
-        model.nnetar.fc <- function(data, H, PI, NPATHS){
+        model.nnetar.fc <- function(data, h, pi, npaths){
           pred_tbl <- data %>% 
             nnetar() %>% 
             {. ->> result.model } %>%  
-            forecast(h = H, PI = PI, npaths = NPATHS) %>% 
+            forecast(h = h, PI = pi, npaths = npaths) %>% 
             {. ->> result.fc } %>%  
             data.frame() %>% 
             {. ->> result.df } 
         }
         
         #nice function to get everything out of the workflow
-        model.nnetar.fc(data$value, H, PI, NPATHS)
+        model.nnetar.fc(data$value, h = H, pi = PI, npaths = NPATHS)
         #result as df uncomment:
         #result.df
         #result as plot uncomment:
@@ -118,13 +121,13 @@ predictServer <- function(id, data) {
         #res.acf <- result.model$residuals %>% na.omit() %>% Acf(main = "ACF of Residuals")
         #res.hist <- result.model$residuals %>% hist(main = "Histogram of Residuals")
         
-        ts.list <- list(ts.extended, ts.accuracy, ts.plot, result.model)
+        module.list <- list(ts.extended, ts.accuracy, ts.plot)
         
-        return(ts.list)
+        return(module.list)
         
       }
       
-      ts.list <- prediction_function(data, H = H, PI = PI, NPATHS = NPATHS)
+      ts.list <- prediction_function(data, h = H, pi = PI, npaths = NPATHS)
       
     })
     
@@ -132,5 +135,74 @@ predictServer <- function(id, data) {
     return(ts.list)
     
   })
+}
+
+### FOR TESTING
+
+ui <- fluidPage(
+  
+  fluidRow(
+    column(8,
+           h4("Interactive Plot"),
+           dygraphOutput("dygraph.fc")
+    ),
+    
+    column(4,
+           h4("Prediction Interval Plot (PI)"),
+           plotOutput("plot.fc")
+    )
+  ),
+  
+  hr(),
+  
+  fluidRow(
+    column(6,
+           h4("Model Configurations"),
+           predictUI("predictModule")
+    ),
+    
+    column(6,
+           h4("Training Accuracy"),
+           tableOutput("acc.tr")
+    )
+  ),
+  
+  fluidRow(
+    column(12,
+           h4("Model Residuals"),
+           plotOutput("plot.res")
+    )
+  )
+)
+            
+server <- function(input, output, session) {
+  
+  data <- read.csv("/data/R/Projects/interactive-shiny-analytics/data/raw/MONTH CN House Prices Monthly.csv",
+                   stringsAsFactors=FALSE)
+  
+  output$dygraph.fc <- renderDygraph({
+    ts.list <- predictServer("predictModule", data)
+    ts <- ts.list()[1] %>% data.frame()
+    dygraph(ts)
+  })
+  
+  output$accuracy.tr <- renderTable({
+    ts.list <- predictServer("predictModule", data)
+    ts.acc <- ts.list()[2] %>% data.frame()
+    
+  })
+  
+  output$plot.fc <- renderPlot({
+    ts.list <- predictServer("predictModule", data)
+    ts.plot <- ts.list()[3][[1]]
+  })
+  
+  # output$plot.res <- renderPlot({
+  #   ts.list <- predictServer("predictModule", data)
+  #   ts.model <- ts.list()[4][[1]]
+  #   ts.model$residuals %>% plot()
+  # })
   
 }
+
+shinyApp(ui, server)

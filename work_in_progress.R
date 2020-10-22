@@ -13,12 +13,6 @@ library(shiny)
 library(shinydashboard)
 library(glue)
 
-#library(fable)
-#library(tidyquant)
-#library(fpp3)
-#library(fpp2)   
-#library(tidyverse)
-
 #Base import
 data <- read.csv("/data/R/Projects/interactive-shiny-analytics/data/raw/MONTH CN House Prices Monthly.csv",
                  stringsAsFactors=FALSE)
@@ -50,7 +44,7 @@ H = 6
 PI = T
 NPATHS = 100
 
-prediction_function <- function(df, H, PI, NPATHS) {
+prediction_function <- function(data, H, PI, NPATHS) {
   
   ts <- data %>% read.zoo()
   
