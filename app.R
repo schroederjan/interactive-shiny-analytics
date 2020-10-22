@@ -99,9 +99,10 @@ ui <- dashboardPage(
       tabItem(tabName = "advanced-test",
               
               h2("Work in progress:"),
-              h3("Here you will be able to apply advanced statistical tests to your data.")
+              h3("Here you will be able to download a full report of your analysis.")
               
-              ),
+              )
+      ),
       
       #####
       # Fifth tab content
@@ -115,6 +116,7 @@ ui <- dashboardPage(
                          h4("Interactive Plot"),
                          dygraphOutput("predict")
                   ),
+                  
                   column(4,
                          h4("Prediction Interval Plot (PI)"),
                          plotOutput("predict_plot")
@@ -128,11 +130,13 @@ ui <- dashboardPage(
                          h4("Model Configurations"),
                          predictUI("predictModule")
                          ),
+                  
                   column(6,
                          h4("Training Accuracy"),
                          tableOutput("training_accuracy")
                          )
                   ),
+                
                 fluidRow(
                   column(12,
                          h4("Model Residuals"),
@@ -151,10 +155,9 @@ ui <- dashboardPage(
               h3("Here you will be able to download a full report of your analysis.")
               
               )
-      
-    )
-  ),
-)
+    ),
+  )
+
 
 ###
 #SERVER
@@ -216,17 +219,18 @@ server <- function(input, output, session) {
   output$training_accuracy <- renderTable({
     ts.list <- predictServer("predictModule", data())
     ts.acc <- ts.list()[2] %>% data.frame()
+    
   })
-  
+
   output$predict_plot <- renderPlot({
     ts.list <- predictServer("predictModule", data())
     ts.plot <- ts.list()[3][[1]]
   })
-  
+
   output$residuals <- renderPlot({
     ts.list <- predictServer("predictModule", data())
-    ts.model <- ts.list[4][[1]]
-    checkresiduals(ts.model)
+    ts.model <- ts.list()[4][[1]]
+    ts.model$residuals %>% plot()
   })
     
 }
