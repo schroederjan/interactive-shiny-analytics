@@ -9,8 +9,9 @@ predictUI <- function(id) {
   ns <- NS(id)
   
   tagList(
-    sliderInput(ns("time_horizon"), "Time Horizon:", min = 1, max = 48, value = 6),
-    checkboxInput(ns("PI"), "Activate PI?", value = F)
+    sliderInput(ns("H"), label = "Time Horizon:", min = 1, max = 48, value = 6),
+    checkboxInput(ns("PI"), label = "Prediction Intervals (PI)?", value = F),
+    sliderInput(ns("NPATHS"), label = "How many Calculations (NPATHS for PI)?", min = 1, max = 1000, value = 100)
   )
   
 }
@@ -22,30 +23,30 @@ predictUI <- function(id) {
 predictServer <- function(id, data) {
   moduleServer(id, function(input, output, session) {
     
-    h <- input$time_horizon
+    H <- input$H
     PI <- input$PI
+    NPATHS <- input$NPATHS
     
-    print(PI)
-    
-    timeseries <- reactive({
+    #call a prediction function to get the data and the training accuracy returned as a list
+    ts.list <- reactive({
       
-      prediction_function <- function(data, h, PI) {
+      prediction_function <- function(df, H, PI, NPATHS) {
         
         ts <- data %>% read.zoo()
         
         #NNETAR FUNCTION
-        model.nnetar.fc <- function(data, h, PI){
+        model.nnetar.fc <- function(data, H, PI, NPATHS){
           pred_tbl <- data %>% 
             nnetar() %>% 
             {. ->> result.model } %>%  
-            forecast(h = h, PI = PI) %>% 
+            forecast(h = H, PI = PI, npaths = NPATHS) %>% 
             {. ->> result.fc } %>%  
             data.frame() %>% 
             {. ->> result.df } 
         }
         
         #nice function to get everything out of the workflow
-        model.nnetar.fc(data$value, h = h, PI = PI)
+        model.nnetar.fc(data$value, h = H, PI = PI, npaths = NPATHS)
         #result as df uncomment:
         #result.df
         #result as plot uncomment:
@@ -56,7 +57,7 @@ predictServer <- function(id, data) {
         # create future dates for the time horizon predicted
         idx <- ts %>%
           tk_index() %>%
-          tk_make_future_timeseries(length_out = h)
+          tk_make_future_timeseries(length_out = H)
         #idx
         
         # Retransform values
@@ -106,15 +107,24 @@ predictServer <- function(id, data) {
         ts.extended <- merge(ts.result, ts.fit)
         names(ts.extended) <- c("Actual", "Prediction", "Fit")
         
-        return(ts.extended)
+        # Accuracy
+        ts.accuracy <- accuracy(result.fc)
+        
+        # Simple Plot
+        ts.plot <- plot(result.fc)
+        
+        ts.list <- list(ts.extended, ts.accuracy, ts.plot)
+        
+        return(ts.list)
         
       }
-      timeseries <- prediction_function(data, h, PI)
+      ts.list <- prediction_function(data, H, PI, NPATHS)
       
     })
     
     # Return the reactive that yields the timeseries
-    return(timeseries)
-  }
-  )
+    return(ts.list)
+    
+  })
+  
 }

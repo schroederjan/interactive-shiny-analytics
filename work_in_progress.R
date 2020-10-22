@@ -13,6 +13,12 @@ library(shiny)
 library(shinydashboard)
 library(glue)
 
+#library(fable)
+#library(tidyquant)
+#library(fpp3)
+#library(fpp2)   
+#library(tidyverse)
+
 #Base import
 data <- read.csv("/data/R/Projects/interactive-shiny-analytics/data/raw/MONTH CN House Prices Monthly.csv",
                  stringsAsFactors=FALSE)
@@ -40,26 +46,27 @@ ts <- data %>%
 #Prediction
 #
 
-h = 6
+H = 48
 PI = T
+NPATHS = 100
 
-prediction_function <- function(df, h, PI) {
+prediction_function <- function(df, H, PI, NPATHS) {
   
   ts <- data %>% read.zoo()
   
   #NNETAR FUNCTION
-  model.nnetar.fc <- function(data, h, PI){
+  model.nnetar.fc <- function(data, H, PI, NPATHS){
     pred_tbl <- data %>% 
       nnetar() %>% 
       {. ->> result.model } %>%  
-      forecast(h = h, PI = PI) %>% 
+      forecast(h = H, PI = PI, npaths = NPATHS) %>% 
       {. ->> result.fc } %>%  
       data.frame() %>% 
       {. ->> result.df } 
   }
   
   #nice function to get everything out of the workflow
-  model.nnetar.fc(data$value, h = h, PI = PI)
+  model.nnetar.fc(data$value, h = H, PI = PI, npaths = NPATHS)
   #result as df uncomment:
   #result.df
   #result as plot uncomment:
@@ -70,7 +77,7 @@ prediction_function <- function(df, h, PI) {
   # create future dates for the time horizon predicted
   idx <- ts %>%
     tk_index() %>%
-    tk_make_future_timeseries(length_out = h)
+    tk_make_future_timeseries(length_out = H)
   #idx
   
   # Retransform values
@@ -120,17 +127,38 @@ prediction_function <- function(df, h, PI) {
   ts.extended <- merge(ts.result, ts.fit)
   names(ts.extended) <- c("Actual", "Prediction", "Fit")
   
-  return(ts.extended)
+  # Accuracy
+  ts.accuracy <- accuracy(result.fc)
+  
+  # Simple Plot
+  ts.plot <- plot(result.fc)
+  
+  #gg_tsresiduals(result.model)
+  res.plot <- result.model$residuals %>% plot(main = "Plot of Residuals")
+  res.acf <- result.model$residuals %>% na.omit() %>% Acf(main = "ACF of Residuals")
+  res.hist <- result.model$residuals %>% hist(main = "Histogram of Residuals")
+  ts.residuals <- list(res.plot, res.acf, res.hist)
+  
+  ts.list <- list(ts.extended, ts.accuracy, ts.plot, ts.residuals)
+  
+  return(ts.list)
   
 }
+ts.list <- prediction_function(data, H = H, PI = PI, NPATHS = NPATHS)
 
-ts.extended <- prediction_function(data, h, PI)
+#TESTING FUNCTION OUTPUT
+ts.acc <- ts.list[2] %>% data.frame()
+ts <- ts.list[1] %>% data.frame()
+ts.plot <- ts.list[3][[1]]
+
+res.plot <- ts.list[4][1]
 
 #VISUAL
-dygraph(ts.extended)
+dygraph(ts)
+ts.acc
+ts.plot[[1]]
 
-# Accuracy
-accuracy(result.fc)
+
 
 # ### Accuracy
 # accuracy(result.fc)

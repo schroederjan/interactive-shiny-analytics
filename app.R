@@ -110,16 +110,27 @@ ui <- dashboardPage(
               
               fluidPage(
                 
-                title = "NNETAR Prediction",
-                h2("NNETAR Prediction"),
-                dygraphOutput("predict"),
-                
+                fluidRow(
+                  column(8,
+                         h4("Interactive Plot"),
+                         dygraphOutput("predict")
+                  ),
+                  column(4,
+                         h4("Prediction Interval Plot (PI)"),
+                         plotOutput("predict_plot")
+                  )
+                ),
+              
                 hr(),
                 
                 fluidRow(
-                  column(3,
+                  column(6,
                          h4("Model Configurations"),
                          predictUI("predictModule")
+                         ),
+                  column(6,
+                         h4("Training Accuracy"),
+                         tableOutput("training_accuracy")
                          )
                   )
                   
@@ -192,14 +203,22 @@ server <- function(input, output, session) {
   #PREDICTION
   ###
   
-  #DYGRAPH PREDICTION
   output$predict <- renderDygraph({
-    
-    ts <- predictServer("predictModule", data())
-    custom_dygraph(ts())
-    
+     ts.list <- predictServer("predictModule", data())
+     ts <- ts.list()[1] %>% data.frame()
+     custom_dygraph(ts)
   })
-
+  
+  output$training_accuracy <- renderTable({
+    ts.list <- predictServer("predictModule", data())
+    ts.acc <- ts.list()[2] %>% data.frame()
+  })
+  
+  output$predict_plot <- renderPlot({
+    ts.list <- predictServer("predictModule", data())
+    ts.plot <- ts.list()[3][[1]]
+  })
+    
 }
 
 shinyApp(ui, server)
