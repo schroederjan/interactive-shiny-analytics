@@ -1,16 +1,6 @@
 ## app.R ##
 
 ###
-#MODULES
-###
-
-source("modules/packages.R")
-source("modules/uploadModule.R")
-source("modules/downloadModule.R")
-source("modules/predictModule.R")
-source("modules/test_module.R")
-
-###
 #FUNCTIONS
 ###
 
@@ -38,11 +28,9 @@ ui <- dashboardPage(
   dashboardSidebar(
     sidebarMenu(
       menuItem("Step 1: Upload", tabName = "upload", icon = icon("upload")),
-      menuItem("Step 2: Visualization", tabName = "visualize", icon = icon("chart-bar")),
-      menuItem("Step 3: Test", tabName = "test", icon = icon("vial")),
-      menuItem("Step 4: Advanced Test", tabName = "advanced-test", icon = icon("vials")),
-      menuItem("Step 5: Prediction", tabName = "predict", icon = icon("chart-line")),
-      menuItem("Step 6: Download", tabName = "download", icon = icon("download"))
+      menuItem("Step 2: Test", tabName = "test", icon = icon("vial")),
+      menuItem("Step 3: Advanced Test", tabName = "advanced-test", icon = icon("vials")),
+      menuItem("Step 4: Prediction", tabName = "predict", icon = icon("chart-line"))
     )
   ),
   
@@ -58,7 +46,7 @@ ui <- dashboardPage(
               fluidPage(
                 sidebarLayout(
                   sidebarPanel(
-                    uploadUI("data", "User data (.csv format)")
+                    uploadUI("data", "User data (.csv format)"),
                   ),
                   mainPanel(
                     dataTableOutput("table")
@@ -70,89 +58,88 @@ ui <- dashboardPage(
       #####
       # Second tab content
       #####
-      tabItem(tabName = "visualize",
-              
+      tabItem(tabName = "test",
               fluidPage(
-                dygraphOutput("visualize")
-                )
+                
+                fluidRow(
+                  h3("Overview: Interactive Data Exploration"),
+                  dygraphOutput("visualize")
+                ),
+                
+                fluidRow(
+                  column(6,
+                         h3("Test 1: Autcorrelation Function"),
+                         plotOutput("test.acf")
+                  ),
+                  
+                  column(6,
+                         h3("Test 2: Partial Autcorrelation Function"),
+                         plotOutput("test.pacf")
+                  )
+                  )
+              )
+      ),
               
-              ),
-  
       #####
       # Third tab content
       #####
-      tabItem(tabName = "test",
-              
-              fluidRow(
-                box(
-                  plotOutput("test.acf")
-                ),
-                box(
-                  plotOutput("test.pacf")
-                )
-                )
+      tabItem(tabName = "advanced-test",
+              h2("Work in progress:"),
+              h3("Here you will be able to download a full report of your analysis.")
               ),
       
       #####
       # Fourth tab content
-      #####
-      tabItem(tabName = "advanced-test",
-              
-              h2("Work in progress:"),
-              h3("Here you will be able to download a full report of your analysis.")
-              
-              ),
-      
-      #####
-      # Fifth tab content
       #####
       tabItem(tabName = "predict",
               
               fluidPage(
                 
                 fluidRow(
-                  column(8,
-                         h4("Interactive Plot"),
-                         dygraphOutput("predict")
-                  ),
-                  
-                  column(4,
-                         h4("Prediction Interval Plot (PI)"),
-                         plotOutput("predict_plot")
+                  column(12,
+                         h3("Interactive Plot for the Overview"),
+                         dygraphOutput("dygraph.fc")
                   )
                 ),
-              
+                
                 hr(),
                 
                 fluidRow(
                   column(6,
-                         h4("Model Configurations"),
+                         h3("Model Configurations for the Prediction Model"),
                          predictUI("predictModule")
-                         ),
+                  ),
                   
                   column(6,
-                         h4("Training Accuracy"),
-                         tableOutput("training_accuracy")
-                         )
-                  ),
+                         h3("Training Accuracy (From Model Fit)"),
+                         tableOutput("acc.tr"),
+                         
+                         h3("Testing Accuracy (From Crossvalidation)"),
+                         h5("Work in progress: This function will be added soon..."),
+                  )
+                ),
                 
                 fluidRow(
-                  column(12,
-                         h4("Model Residuals"),
-                         plotOutput("residuals")
-                         )
+                  column(8,
+                         h3("Model Residuals (What patterns are left after using the Model)"),
+                         plotOutput("plot.res")
+                  ),
+                  column(4,
+                         h3("Prediction Interval Plot (PI)"),
+                         plotOutput("plot.fc")
                   )
+                  
+                )
               )
+              
               ),
       
       #####
-      # Sixth tab content
+      # Fifth tab content
       #####
       tabItem(tabName = "download",
-              
               h2("Work in progress:"),
               h3("Here you will be able to download a full report of your analysis.")
-              
               )
     ),
   )
@@ -178,22 +165,15 @@ server <- function(input, output, session) {
   
   ###
   #Step 2
-  #DATA VISUALIZATION
+  #DATA Testing
   ###
   
   output$visualize <- renderDygraph({
-    
     #to transform the df from the module into a time series
     data.ts <- data() %>% read.zoo()
     custom_dygraph(data.ts)
-    
   })
   
-  ###
-  #Step 3
-  #TEST
-  ###
-
   output$test.acf <- renderPlot({
     data.acf <- acf(data()$value, plot = F)
     autoplot(data.acf)
@@ -205,31 +185,44 @@ server <- function(input, output, session) {
   })
   
   ###
-  #Step 6
-  #PREDICTION
+  #Step 3
+  #Advanced Testing (Crossvalidation)
   ###
   
-  output$predict <- renderDygraph({
-     ts.list <- predictServer("predictModule", data())
-     ts <- ts.list()[1] %>% data.frame()
-     custom_dygraph(ts)
+  #
+  # COMING SOON...
+  #
+  
+  ###
+  #Step 4
+  #PREDICTION
+  ###
+
+  timeseries  <- reactive({
+    df <- data()
+    ts.list <- predictServer("predictModule", df)
   })
   
-  output$training_accuracy <- renderTable({
-    ts.list <- predictServer("predictModule", data())
-    ts.acc <- ts.list()[2] %>% data.frame()
-    
+  output$dygraph.fc <- renderDygraph({
+    ts.list <- timeseries()
+    ts <- ts.list()[1] %>% data.frame()
+    custom_dygraph(ts)
   })
-
-  output$predict_plot <- renderPlot({
-    ts.list <- predictServer("predictModule", data())
-    ts.plot <- ts.list()[3][[1]]
+  
+  output$acc.tr <- renderTable({
+    ts.list <- timeseries()
+    ts.acc <- ts.list()[[2]]
   })
-
-  output$residuals <- renderPlot({
-    ts.list <- predictServer("predictModule", data())
+  
+  output$plot.fc <- renderPlot({
+    ts.list <- timeseries()
+    ts.plot <- plot(ts.list()[[3]])
+  })
+  
+  output$plot.res <- renderPlot({
+    ts.list <- timeseries()
     ts.model <- ts.list()[4][[1]]
-    ts.model$residuals %>% plot()
+    ts.model %>% checkresiduals()
   })
     
 }
