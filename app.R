@@ -85,7 +85,7 @@ ui <- dashboardPage(
       #####
       tabItem(tabName = "advanced-test",
               h2("Work in progress:"),
-              h3("Here you will be able to download a full report of your analysis.")
+              h3("Crossvalidation test is coming soon....")
               ),
       
       #####
@@ -175,12 +175,12 @@ server <- function(input, output, session) {
   })
   
   output$test.acf <- renderPlot({
-    data.acf <- acf(data()$value, plot = F)
+    data.acf <- Acf(data()$value, plot = F)
     autoplot(data.acf)
   })
   
   output$test.pacf <- renderPlot({
-    data.pacf <- pacf(data()$value, plot = F)
+    data.pacf <- Pacf(data()$value, plot = F)
     autoplot(data.pacf)
   })
   
