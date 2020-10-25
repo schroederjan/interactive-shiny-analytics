@@ -16,7 +16,9 @@
 This project contains a ready to go shiny web application for interactive quick advanced predictive data analytics. Shiny is a package from RStudio that makes it possible to build interactive web applications with R.
 Especially for departments without the necessary R skills to engage in advanced analytics, Shiny templates can help to bring data analytics to the next level. Although KNIME, Alteryx, and other low-code solutions are very helpful to fill the knowledge gap in more business-centered teams, those tools still lack the ease of traditional web applications. With my Shiny template, a team can make use of advanced analytics without being afraid of breaking anything. Whether you want to run the app locally or on a server, to access it through your company network, both bring your team from descriptive to predictive analytics fast.
 
-For a more detailed tutorial of how to use this applicaion in praxis, visit my [Website](http://schroederjan.com/). `(COMING SOON)`
+For a more detailed tutorial of how to use this applicaion template in praxis, visit my [website](http://schroederjan.com/). `(COMING SOON)`
+
+The application template is running [here](http://ec2-3-122-102-50.eu-central-1.compute.amazonaws.com:3838/interactive-shiny-analytics/) live on an AWS instance. You use [this](https://github.com/AionosChina/interactive-shiny-analytics/tree/main/data) sample dataset from the repository.
 
 ## Background
 Whenever I work with colleagues from the finance or logistics department, I find one problem. They have the data, they have the business knowledge, but what they do not have, is enough time to learn how to build data analytics applications or wait for IT Resources being available. This way, tremendous insight stays hidden inside spreadsheets or databases. And even if you have a full-fledged data science department at your disposal. Quick web applications are the next step in the evolution of business intelligence and reports. Communication is key and nothing communicates better than interactivity in complex scenario planning. 
