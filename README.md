@@ -5,7 +5,8 @@
 * [Introduction](#introduction)
 * [Background](#background)
 * [Dependencies](#dependencies)
-* [Setup](#setup)
+* [Local Setup](#local-setup)
+* [Docker Setup](#docker-setup)
 * [Features](#features)
 * [Status](#status)
 * [Inspiration](#inspiration)
@@ -36,6 +37,7 @@ If you need more help with R and RStudio, you can find detailed instructions [he
 * [Shiny](http://shiny.rstudio.com/tutorial/)
 
 If you have never programmed a Shiny app before, I recommend you to check out the [Shiny Tutorial](http://shiny.rstudio.com/tutorial/). It explains the framework in-depth, walks you through building a simple application, and includes extensive annotated examples.
+NOTE: I am using the new Shiny (>1.5.0) and apply the `moduleServer` instead of the `callModule` function.
 
 * R Packages
 
@@ -47,37 +49,64 @@ If there are some issues, you can have a look at my session information below.
 ```r
 sessionInfo()
 
-R version 3.6.3 (2020-02-29)
-Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Ubuntu 20.04.1 LTS
-
-#attached base packages:
-stats
-graphics
-grDevices
-utils
-datasets
-methods
-base     
+# R version 3.6.3 (2020-02-29)
+# Platform: x86_64-pc-linux-gnu (64-bit)
+# Running under: Ubuntu 20.04.1 LTS
 
 #other attached packages:
-readr_1.4.0
-glue_1.4.2
-shinydashboard_0.7.1
-xts_0.12.1
-lubridate_1.7.9
-tibbletime_0.1.6
-rlang_0.4.8
-purrr_0.3.4
-tibble_3.0.4
-timetk_2.4.0        
-forecast_8.13
-zoo_1.8-8 
-dplyr_1.0.2 
-dygraphs_1.1.1.6  
-shiny_1.5.0         
+# readr_1.4.0
+# glue_1.4.2
+# shinydashboard_0.7.1
+# xts_0.12.1
+# lubridate_1.7.9
+# tibbletime_0.1.6
+# rlang_0.4.8
+# purrr_0.3.4
+# tibble_3.0.4
+# timetk_2.4.0        
+# forecast_8.13
+# zoo_1.8-8 
+# dplyr_1.0.2 
+# dygraphs_1.1.1.6  
+# shiny_1.5.0         
 ```
-## Setup
+## Local Setup
+ 1. First, clone the repository to your local machine into any location.
+ 
+```bash
+git clone https://github.com/AionosChina/interactive-shiny-analytics.git
+```
+
+2. Then, go into the new folder and open the project file `interactive-shiny-analytics.Rproj` with RStudio.
+
+```bash
+├── app.R
+├── data
+│   └── Chinese_House_Prices_Monthly.csv
+├── interactive-shiny-analytics.Rproj
+├── man
+│   └── screenshots
+│       ├── app_01.png
+│       └── app_02.png
+├── module-example
+│   ├── app.R
+│   ├── downloadModule.R
+│   ├── storms.csv
+│   └── uploadModule.R
+├── modules
+│   ├── crossvalidationModule.R
+│   ├── downloadModule.R
+│   ├── packages.R
+│   ├── predictModule.R
+│   └── uploadModule.R
+├── README.html
+├── README.md
+```
+
+3. When all dependencies are met, you can open the file `app.R` and click `Run App` in RStudio.
+The application should run locally on your computer and open automatically.
+
+## Docker Setup
 `(COMING SOON)`
 
 ## Features:
