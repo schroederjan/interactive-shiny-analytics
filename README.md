@@ -85,6 +85,7 @@ git clone https://github.com/AionosChina/interactive-shiny-analytics.git
 │   └── Chinese_House_Prices_Monthly.csv
 ├── interactive-shiny-analytics.Rproj
 ├── man
+│   └── install.R
 │   └── screenshots
 │       ├── app_01.png
 │       └── app_02.png
@@ -102,8 +103,12 @@ git clone https://github.com/AionosChina/interactive-shiny-analytics.git
 ├── README.html
 ├── README.md
 ```
+3. For installing the packages you can run the `install.R` script.
+```r
+Rscript install.R
+```
 
-3. When all dependencies are met, you can open the file `app.R` and click `Run App` in RStudio.
+4. When all dependencies are met, you can open the file `app.R` and click `Run App` in RStudio.
 The application should run locally on your computer and open automatically.
 
 ## Docker Setup
