@@ -1,6 +1,8 @@
 ## app.R ##
 
 source("modules/packages.R")
+source("modules/uploadModule.R")
+source("modules/predictModule.R")
 
 ###
 #FUNCTIONS
