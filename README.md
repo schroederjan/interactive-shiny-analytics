@@ -12,35 +12,35 @@
 * [Contact](#contact)
 
 ## Introduction
-This projects contains a ready to go shiny web application for interactive quick advanced predictive data analytics. Shiny is a package from RStudio that makes it possible to build interactive web applications with R.
+This project contains a ready to go shiny web application for interactive quick advanced predictive data analytics. Shiny is a package from RStudio that makes it possible to build interactive web applications with R.
+Especially for departments without the necessary R skills to engage in advanced analytics, Shiny templates can help to bring data analytics to the next level. Although KNIME, Alteryx, and other low-code solutions are very helpful to fill the knowledge gap in more business-centered teams, those tools still lack the ease of traditional web applications. With my Shiny template, a team can make use of advanced analytics without being afraid of breaking anything. Whether you want to run the app locally or on a server, to access it through your company network, both bring your team from descriptive to predictive analytics fast.
 
-{COMING SOON} For a more detailed tutorial of how to use this applicaion in praxis, visit my [Homepage](http://schroederjan.com/).
+For a more detailed tutorial of how to use this applicaion in praxis, visit my [Website](http://schroederjan.com/). `(COMING SOON)`
 
 ## Background
-This projects is a showcase for an idea that I had when working at Siemens in Chengdu, China.
-I want to provide a simple and easy way for non-programmers to use advanced algorithms for time series predictions. You can think about sales, orders, deliveries, storage or other logistical, financial or even technical data sets that are still not yet been analysed in a structured way. 
+Whenever I work with colleagues from the finance or logistics department, I find one problem. They have the data, they have the business knowledge, but what they do not have, is enough time to learn how to build data analytics applications or wait for IT Resources being available. This way, tremendous insight stays hidden inside spreadsheets or databases. And even if you have a full-fledged data science department at your disposal. Quick web applications are the next step in the evolution of business intelligence and reports. Communication is key and nothing communicates better than interactivity in complex scenario planning. 
 
-In an data science team you can surerly just exchange the code for some advanced analytics, but the insight will be limited to people that can code (R in this case). With a shiny application you can share your insight with colleagues and give them a customised tool for future reference for similar problems. 
-And all that without endless IT resources bound to it.
+What I would like to achieve here is to provide a simple and easy way for non-code experts to use advanced algorithms and bring their department from descriptive to predictive analytics. A step on most companies roadmap, they are still struggling to reach.
 
 ## Dependencies
-For the project to work you need R, Rstudio, knowledge of Shiny (To get the app running locally) and install all packages used in this project (more below).
+For the project to work, you need R, Rstudio, knowledge of Shiny (to get the app running locally), and all required packages installed.
 
 * [R & RStudio](https://rstudio.com)
 
-All R versions should be fine, I was using the stable version 3.6.3 though.
-If you need more help of what R and RStudio is and how to install it you can look it up [here](https://rstudio.com/products/rstudio/download/#download)
+All R versions should be fine. I was using the stable version 3.6.3, though.
+If you need more help with R and RStudio, you can find detailed instructions [here](https://rstudio.com/products/rstudio/download/#download)
 
 * [Shiny](http://shiny.rstudio.com/tutorial/)
 
-To learn more I recommend you check out the [Shiny Tutorial](http://shiny.rstudio.com/tutorial/). The tutorial explains the framework in-depth, walks you through building a simple application, and includes extensive annotated examples.
+If you have never programmed a Shiny app before, I recommend you to check out the [Shiny Tutorial](http://shiny.rstudio.com/tutorial/). It explains the framework in-depth, walks you through building a simple application, and includes extensive annotated examples.
 
 * R Packages
 
-In my experience, there is no big problem with different versions of those packages on Windows or Ubuntu.
-In general it should be the easiest to just install the packages written in the [packages.R](https://github.com/AionosChina/interactive-shiny-analytics/blob/main/modules/packages.R) file.
-
-If there are some issues you can have a look at my session information below.
+In my experience, there should be no big problem with different versions of R packages in this project. Just install the packages written in the [packages.R](https://github.com/AionosChina/interactive-shiny-analytics/blob/main/modules/packages.R) file manually like usual:
+```r
+install.packages("PACKAGE_NAME")
+```
+If there are some issues, you can have a look at my session information below.
 ```r
 sessionInfo()
 
@@ -75,30 +75,34 @@ dygraphs_1.1.1.6
 shiny_1.5.0         
 ```
 ## Setup
-Describe how to install / setup your local environement / add link to demo version.
-
-## Module Examples
-Show examples of usage:
-`put-your-code-here`
+`(COMING SOON)`
 
 ## Features:
-* Awesome feature 1
-* Awesome feature 2
-* Awesome feature 3
+* Upload your own time-series data as a .csv file
+* Upload and add external regressors (errors) to your input data `(COMING SOON)`
+* Test your time series data with basic statistical tests
+* Use advanced statistical tests for your algorithms such as cross-validation `(COMING SOON)`
+* Predict your time series data and check the model based on residuals
+* Download a full report of your findings `(COMING SOON)`
 
-## To-do list:
-* Setup
-* Module Examples
-* Features
-* Live Usecase
-* Crossvalidation
+## Algorithms:
+* Neural Network Autoregression (NNAR)
+* Auto-ARIMA `(COMING SOON)`
+* Long Short-Term Memory Neural Network (LSTM) `(COMING SOON)`
 
 ## Status
-Project is _in progress_ and will be expanded with new features soon.
-My goal is it to build a state of the art "Prediction Tool" template that can be customised at will.
+The project is _in progress_ and will be expanded with new features soon.
+My goal is it to build a state of the art "Prediction Tool" application template that anyone can customize or expand at will.
+
+### To-do list:
+* Docker Image Setup
+* Live Usecase on AWS
 
 ## Inspiration
-TBD
+If you like to learn more about R, Shiny or Predictive Analytics, you can check out these links below.
+
+* [Business Science University](https://university.business-science.io/)
+* [Rob J Hyndman](https://robjhyndman.com/publications/)
 
 ## Contact
 Created by [Jan Schroeder](https://www.schroederjan.com/) - feel free to contact me!
