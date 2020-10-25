@@ -1,5 +1,7 @@
 ## app.R ##
 
+source("modules/packages.R")
+
 ###
 #FUNCTIONS
 ###
