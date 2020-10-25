@@ -20,6 +20,9 @@ For a more detailed tutorial of how to use this applicaion in praxis, visit my [
 ## Background
 Whenever I work with colleagues from the finance or logistics department, I find one problem. They have the data, they have the business knowledge, but what they do not have, is enough time to learn how to build data analytics applications or wait for IT Resources being available. This way, tremendous insight stays hidden inside spreadsheets or databases. And even if you have a full-fledged data science department at your disposal. Quick web applications are the next step in the evolution of business intelligence and reports. Communication is key and nothing communicates better than interactivity in complex scenario planning. 
 
+![](man/screenshots/app_01.png)
+![](man/screenshots/app_02.png)
+
 What I would like to achieve here is to provide a simple and easy way for non-code experts to use advanced algorithms and bring their department from descriptive to predictive analytics. A step on most companies roadmap, they are still struggling to reach.
 
 ## Dependencies
